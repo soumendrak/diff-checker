@@ -186,7 +186,6 @@ footer a:hover { color: var(--accent); }
     <p class="tagline">Compare text side by side</p>
 </header>
 <div class="controls">
-    <button class="btn btn-primary" id="compareBtn">Compare</button>
     <button class="btn btn-danger" id="clearLeftBtn">Clear Left</button>
     <button class="btn btn-danger" id="clearRightBtn">Clear Right</button>
 </div>
@@ -231,12 +230,13 @@ const leftContent = document.getElementById('leftContent');
 const rightContent = document.getElementById('rightContent');
 const leftNums = document.getElementById('leftNums');
 const rightNums = document.getElementById('rightNums');
-const compareBtn = document.getElementById('compareBtn');
 const clearLeftBtn = document.getElementById('clearLeftBtn');
 const clearRightBtn = document.getElementById('clearRightBtn');
 const wordWrapToggle = document.getElementById('wordWrapToggle');
 const removedCount = document.getElementById('removedCount');
 const addedCount = document.getElementById('addedCount');
+
+let debounceTimer = null;
 
 leftContent.textContent = 'Hello World\nThis is a test\nThird line\nFourth line';
 rightContent.textContent = 'Hello World\nThis is a modified test\nThird line\nAnother line\nFifth line';
@@ -422,10 +422,19 @@ function compare() {
     updateLineNums();
 }
 
-leftContent.addEventListener('input', updateLineNums);
-rightContent.addEventListener('input', updateLineNums);
+function debouncedCompare() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(compare, 300);
+}
 
-compareBtn.addEventListener('click', compare);
+leftContent.addEventListener('input', function() {
+    updateLineNums();
+    debouncedCompare();
+});
+rightContent.addEventListener('input', function() {
+    updateLineNums();
+    debouncedCompare();
+});
 
 clearLeftBtn.addEventListener('click', function() {
     leftContent.textContent = '';
@@ -450,6 +459,8 @@ wordWrapToggle.addEventListener('change', function() {
 });
 
 updateLineNums();
+// Initial diff
+compare();
 })();
 </script>
 </body>
